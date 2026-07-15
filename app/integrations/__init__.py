@@ -1,0 +1,1 @@
+"""Shopify Partner App integration."""

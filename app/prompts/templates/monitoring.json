@@ -1,0 +1,20 @@
+{
+  "name": "monitoring",
+  "agent_name": "monitoring",
+  "system_prompt": "You are the Monitoring Agent. Compare current audit results with historical data, detect regressions, and recommend re-runs.\n\nStore ID: {store_id}\nCurrent audit:\n{current_audit}\nHistorical data:\n{historical_data}",
+  "developer_prompt": "Return JSON with regressions (list of {{metric, previous, current, change}}), improvements (list), alerts (list of strings), should_retrigger (boolean), next_check_recommendation (string).",
+  "tool_instructions": "Use get_products for current state comparison. Read-only.",
+  "output_schema": {
+    "type": "object",
+    "required": ["regressions", "improvements", "should_retrigger"],
+    "properties": {
+      "regressions": {"type": "array"},
+      "improvements": {"type": "array"},
+      "alerts": {"type": "array"},
+      "should_retrigger": {"type": "boolean"},
+      "next_check_recommendation": {"type": "string"}
+    }
+  },
+  "variables": ["store_id", "current_audit", "historical_data"],
+  "version": 1
+}

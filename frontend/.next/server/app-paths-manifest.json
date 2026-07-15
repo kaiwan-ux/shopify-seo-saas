@@ -1,0 +1,11 @@
+{
+  "/(auth)/login/page": "app/(auth)/login/page.js",
+  "/(dashboard)/agents/page": "app/(dashboard)/agents/page.js",
+  "/(dashboard)/approvals/page": "app/(dashboard)/approvals/page.js",
+  "/(dashboard)/dashboard/page": "app/(dashboard)/dashboard/page.js",
+  "/(dashboard)/monitoring/page": "app/(dashboard)/monitoring/page.js",
+  "/(dashboard)/reports/page": "app/(dashboard)/reports/page.js",
+  "/(dashboard)/seo-audit/page": "app/(dashboard)/seo-audit/page.js",
+  "/(dashboard)/store/page": "app/(dashboard)/store/page.js",
+  "/page": "app/page.js"
+}

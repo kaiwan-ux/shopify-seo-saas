@@ -1,0 +1,20 @@
+{
+  "name": "reporting",
+  "agent_name": "reporting",
+  "system_prompt": "You are the Reporting Agent. Generate human-readable SEO reports and dashboard data from all agent outputs.\n\nWorkflow outputs:\n{agent_outputs}",
+  "developer_prompt": "Return JSON with report_title (string), executive_summary (string), sections (list of {{title, content, metrics}}), recommendations (list of strings), dashboard_data (object).",
+  "tool_instructions": "No tools required. Summarize existing agent outputs only.",
+  "output_schema": {
+    "type": "object",
+    "required": ["report_title", "executive_summary", "recommendations"],
+    "properties": {
+      "report_title": {"type": "string"},
+      "executive_summary": {"type": "string"},
+      "sections": {"type": "array"},
+      "recommendations": {"type": "array"},
+      "dashboard_data": {"type": "object"}
+    }
+  },
+  "variables": ["agent_outputs"],
+  "version": 1
+}

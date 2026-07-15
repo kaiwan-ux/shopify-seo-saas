@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 16, "column": 0}, "map": {"version":3,"sources":["turbopack:///[project]/middleware.ts"],"sourcesContent":["import { NextRequest, NextResponse } from \"next/server\";\n\nconst publicRoutes = [\"/\", \"/login\", \"/register\", \"/forgot-password\"];\n\nexport function middleware(request: NextRequest) {\n  const isPublic = publicRoutes.includes(request.nextUrl.pathname);\n  const hasSession = request.cookies.has(\"seo_session\");\n  if (!isPublic && !hasSession && process.env.NODE_ENV === \"production\") {\n    return NextResponse.redirect(new URL(\"/login\", request.url));\n  }\n  return NextResponse.next();\n}\n\nexport const config = {\n  matcher: [\"/((?!api|_next/static|_next/image|favicon.ico).*)\"],\n};\n"],"names":[],"mappings":";;;;;;AAAA;AAAA;;AAEA,MAAM,eAAe;IAAC;IAAK;IAAU;IAAa;CAAmB;AAE9D,SAAS,WAAW,OAAoB;IAC7C,MAAM,WAAW,aAAa,QAAQ,CAAC,QAAQ,OAAO,CAAC,QAAQ;IAC/D,MAAM,aAAa,QAAQ,OAAO,CAAC,GAAG,CAAC;IACvC;;IAGA,OAAO,gMAAY,CAAC,IAAI;AAC1B;AAEO,MAAM,SAAS;IACpB,SAAS;QAAC;KAAoD;AAChE"}}]
+}

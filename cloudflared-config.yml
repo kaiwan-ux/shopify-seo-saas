@@ -1,0 +1,7 @@
+tunnel: YOUR_TUNNEL_ID_HERE
+credentials-file: C:\Users\Tech Mehal\.cloudflared\YOUR_TUNNEL_ID_HERE.json
+
+ingress:
+  - hostname: shopify-seo.yourdomain.com
+    service: http://localhost:8000
+  - service: http_status:404
