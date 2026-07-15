@@ -52,3 +52,7 @@ Thumbs.db
 
 # uv
 .uv/
+
+# Node.js
+node_modules/
+frontend/node_modules/
