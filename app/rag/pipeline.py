@@ -31,30 +31,23 @@ class RAGPipeline:
         self.session = session
         self.settings = settings or get_settings()
         
-        # Only create embedder if embeddings are enabled
-        if embedder:
-            self.embedder = embedder
-        elif self.settings.embedding_provider != "none":
-            self.embedder = get_embedding_provider(self.settings)
-        else:
-            # Use NoOp provider when embeddings disabled
-            self.embedder = get_embedding_provider(self.settings)
-            
-        # Only create vector store if embeddings are enabled
+        self.embedder = embedder or get_embedding_provider(self.settings)
+        self.embeddings_enabled = self.embedder.dimensions > 0
+
         if vector_store:
             self.vector_store = vector_store
-        elif self.settings.embedding_provider != "none":
+        elif self.embeddings_enabled:
             self.vector_store = get_vector_store(self.settings)
         else:
             self.vector_store = None
 
     async def initialize(self) -> None:
         """Ensure required collections exist."""
-        # Skip initialization if embeddings are disabled
-        if self.settings.embedding_provider == "none":
-            logger.info("Embeddings disabled - skipping RAG initialization")
+        # Skip initialization if embeddings are disabled or unavailable.
+        if not self.embeddings_enabled or self.vector_store is None:
+            logger.info("Embeddings disabled or unavailable - skipping RAG initialization")
             return
-            
+
         dims = self.embedder.dimensions
         await self.vector_store.ensure_collection(self.KNOWLEDGE_COLLECTION, dims)
         await self.vector_store.ensure_collection(self.MEMORY_COLLECTION, dims)
@@ -66,6 +59,10 @@ class RAGPipeline:
         collection: str = KNOWLEDGE_COLLECTION,
     ) -> dict[str, Any]:
         """Chunk, embed, and store a document."""
+        if not self.embeddings_enabled or self.vector_store is None:
+            logger.info("Embeddings disabled or unavailable - skipping document indexing")
+            return {"indexed": 0, "document_hash": document.content_hash}
+
         chunks = chunk_text(document.content, self.settings)
         if not chunks:
             return {"indexed": 0, "document_hash": document.content_hash}
@@ -111,7 +108,7 @@ class RAGPipeline:
         Retrieval is advisory context for agents. If the vector store is not
         ready, return an empty context instead of failing the workflow.
         """
-        if self.settings.embedding_provider == "none":
+        if not self.embeddings_enabled or self.vector_store is None:
             return []
         top_k = top_k or self.settings.rag_top_k
         try:
@@ -147,7 +144,7 @@ class RAGPipeline:
         metadata: dict[str, Any] | None = None,
     ) -> str:
         """Index a memory entry for semantic retrieval."""
-        if self.settings.embedding_provider == "none":
+        if not self.embeddings_enabled or self.vector_store is None:
             return str(uuid.uuid4())
         await self.initialize()
         embedding = await self.embedder.embed_text(content)

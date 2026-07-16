@@ -1,5 +1,7 @@
 """Embedding provider factory."""
 
+from loguru import logger
+
 from app.config.settings import Settings, get_settings
 from app.rag.embedder import BaseEmbeddingProvider, EmbeddingResult
 
@@ -149,4 +151,27 @@ def get_embedding_provider(settings: Settings | None = None) -> BaseEmbeddingPro
     cls = providers.get(settings.embedding_provider)
     if cls is None:
         raise ValueError(f"Unsupported embedding provider: {settings.embedding_provider}")
-    return cls(settings)
+
+    if settings.app_env == "production" and settings.embedding_provider in {"bge", "nomic"}:
+        # Local HuggingFace/Ollama embeddings are too heavy and/or unavailable on
+        # small production hosts such as Render free instances. RAG context is
+        # optional; the core Shopify sync, audit, agent, and approval workflows
+        # must continue without it.
+        logger.warning(
+            "Embedding provider '{}' is disabled in production. Falling back to no-op RAG.",
+            settings.embedding_provider,
+        )
+        return NoOpEmbeddingProvider(settings)
+
+    try:
+        return cls(settings)
+    except ImportError as exc:
+        # Embeddings are optional for the SaaS workflow. On small production
+        # hosts we intentionally do not install heavy community/HF embedding
+        # packages; audits, agents, approvals, and Shopify writes must still run.
+        logger.warning(
+            "Embedding provider '{}' unavailable ({}). Falling back to no-op RAG.",
+            settings.embedding_provider,
+            exc,
+        )
+        return NoOpEmbeddingProvider(settings)
