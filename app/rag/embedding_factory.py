@@ -36,8 +36,16 @@ class OpenAIEmbeddingProvider(BaseEmbeddingProvider):
 
 
 class NomicEmbeddingProvider(BaseEmbeddingProvider):
+    """Nomic embedding provider - requires langchain_community (disabled in production)."""
+    
     def __init__(self, settings: Settings) -> None:
-        from langchain_community.embeddings import OllamaEmbeddings
+        try:
+            from langchain_community.embeddings import OllamaEmbeddings
+        except ImportError as e:
+            raise ImportError(
+                "langchain_community is required for Nomic embeddings but not installed. "
+                "Use EMBEDDING_PROVIDER=none or install langchain_community."
+            ) from e
 
         self._embeddings = OllamaEmbeddings(
             model=settings.embedding_model or "nomic-embed-text",
@@ -67,8 +75,16 @@ class NomicEmbeddingProvider(BaseEmbeddingProvider):
 
 
 class BGEEmbeddingProvider(BaseEmbeddingProvider):
+    """BGE embedding provider - requires langchain_community (disabled in production)."""
+    
     def __init__(self, settings: Settings) -> None:
-        from langchain_community.embeddings import HuggingFaceEmbeddings
+        try:
+            from langchain_community.embeddings import HuggingFaceEmbeddings
+        except ImportError as e:
+            raise ImportError(
+                "langchain_community is required for BGE embeddings but not installed. "
+                "Use EMBEDDING_PROVIDER=none or install langchain_community."
+            ) from e
 
         model_name = settings.embedding_model or "BAAI/bge-small-en-v1.5"
         self._embeddings = HuggingFaceEmbeddings(model_name=model_name)
