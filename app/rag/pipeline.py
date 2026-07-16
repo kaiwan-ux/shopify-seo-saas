@@ -30,8 +30,23 @@ class RAGPipeline:
     ) -> None:
         self.session = session
         self.settings = settings or get_settings()
-        self.embedder = embedder or get_embedding_provider(self.settings)
-        self.vector_store = vector_store or get_vector_store(self.settings)
+        
+        # Only create embedder if embeddings are enabled
+        if embedder:
+            self.embedder = embedder
+        elif self.settings.embedding_provider != "none":
+            self.embedder = get_embedding_provider(self.settings)
+        else:
+            # Use NoOp provider when embeddings disabled
+            self.embedder = get_embedding_provider(self.settings)
+            
+        # Only create vector store if embeddings are enabled
+        if vector_store:
+            self.vector_store = vector_store
+        elif self.settings.embedding_provider != "none":
+            self.vector_store = get_vector_store(self.settings)
+        else:
+            self.vector_store = None
 
     async def initialize(self) -> None:
         """Ensure required collections exist."""
